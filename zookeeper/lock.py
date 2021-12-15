@@ -6,6 +6,13 @@ from kazoo.client import KazooClient
 
 
 def require_lock(zk: KazooClient, lock_name: str, require_timeout: float) -> str | bool:
+    """
+    try to require lock in blocking.
+    :param zk: zookeeper client
+    :param lock_name: name of lock
+    :param require_timeout: if not require lock before timeout, cancel trying.
+    :return: the identifier of lock if success, else None.
+    """
     wait = True
 
     def try_lock(event):
@@ -48,11 +55,24 @@ def require_lock(zk: KazooClient, lock_name: str, require_timeout: float) -> str
 
 
 def release_lock(zk: KazooClient, lock_name: str, identifier: str):
+    """
+    release lock
+    :param zk: zookeeper client
+    :param lock_name: name of lock
+    :param identifier: the identifier of lock
+    :return:
+    """
     path = '/'.join(['', 'locks', lock_name, identifier])
     zk.delete(path)
 
 
 def test_lock(zk: KazooClient, number: int):
+    """
+    test the function of lock.
+    :param zk: zookeeper client
+    :param number: the number of thread
+    :return:
+    """
     lock_name = "apple"
     lock_id = require_lock(zk, lock_name, 20)
     try:
